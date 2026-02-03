@@ -6,12 +6,12 @@ export async function api<T>(endpoint: string, options?: RequestInit): Promise<T
     credentials: 'include',
     ...options,
   });
-  
+
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'API request failed' }));
     throw new Error(error.error || 'API request failed');
   }
-  
+
   return res.json();
 }
 

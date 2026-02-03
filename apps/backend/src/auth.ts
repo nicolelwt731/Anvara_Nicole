@@ -46,7 +46,7 @@ export async function requireAuth(
         headers.set(key, Array.isArray(value) ? value[0] : value);
       }
     });
-    
+
     const session = await auth.api.getSession({ headers });
 
     if (!session?.user) {

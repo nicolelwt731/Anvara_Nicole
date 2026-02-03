@@ -1,3 +1,9 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { deleteCampaign } from '../actions';
+import { CampaignForm } from './campaign-form';
+
 interface CampaignCardProps {
   campaign: {
     id: string;
@@ -19,45 +25,91 @@ const statusColors: Record<string, string> = {
 };
 
 export function CampaignCard({ campaign }: CampaignCardProps) {
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  
   const progress =
     campaign.budget > 0 ? (Number(campaign.spent) / Number(campaign.budget)) * 100 : 0;
 
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete "${campaign.name}"?`)) {
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await deleteCampaign(campaign.id);
+      if (result.error) {
+        setError(result.error);
+      }
+    });
+  };
+
   return (
-    <div className="rounded-lg border border-[--color-border] p-4">
-      <div className="mb-2 flex items-start justify-between">
-        <h3 className="font-semibold">{campaign.name}</h3>
-        <span
-          className={`rounded px-2 py-0.5 text-xs ${statusColors[campaign.status] || 'bg-gray-100'}`}
-        >
-          {campaign.status}
-        </span>
-      </div>
-
-      {campaign.description && (
-        <p className="mb-3 text-sm text-[--color-muted] line-clamp-2">{campaign.description}</p>
-      )}
-
-      <div className="mb-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-[--color-muted]">Budget</span>
-          <span>
-            ${Number(campaign.spent).toLocaleString()} / ${Number(campaign.budget).toLocaleString()}
+    <>
+      <div className="rounded-lg border border-[--color-border] p-4">
+        <div className="mb-2 flex items-start justify-between">
+          <h3 className="font-semibold">{campaign.name}</h3>
+          <span
+            className={`rounded px-2 py-0.5 text-xs ${statusColors[campaign.status] || 'bg-gray-100'}`}
+          >
+            {campaign.status}
           </span>
         </div>
-        <div className="mt-1 h-1.5 rounded-full bg-gray-200">
-          <div
-            className="h-1.5 rounded-full bg-[--color-primary]"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
+
+        {campaign.description && (
+          <p className="mb-3 text-sm text-[--color-muted] line-clamp-2">{campaign.description}</p>
+        )}
+
+        <div className="mb-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-[--color-muted]">Budget</span>
+            <span>
+              ${Number(campaign.spent).toLocaleString()} / ${Number(campaign.budget).toLocaleString()}
+            </span>
+          </div>
+          <div className="mt-1 h-1.5 rounded-full bg-gray-200">
+            <div
+              className="h-1.5 rounded-full bg-[--color-primary]"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mb-3 text-xs text-[--color-muted]">
+          {new Date(campaign.startDate).toLocaleDateString()} -{' '}
+          {new Date(campaign.endDate).toLocaleDateString()}
+        </div>
+
+        {error && (
+          <div className="mb-2 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-600">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowEditForm(true)}
+            className="flex-1 rounded border border-blue-600 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isPending}
+            className="flex-1 rounded border border-red-600 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? 'Deleting...' : 'Delete'}
+          </button>
         </div>
       </div>
 
-      <div className="text-xs text-[--color-muted]">
-        {new Date(campaign.startDate).toLocaleDateString()} -{' '}
-        {new Date(campaign.endDate).toLocaleDateString()}
-      </div>
-
-      {/* TODO: Add edit/view buttons */}
-    </div>
+      {showEditForm && (
+        <CampaignForm
+          campaign={campaign}
+          onClose={() => setShowEditForm(false)}
+        />
+      )}
+    </>
   );
 }
