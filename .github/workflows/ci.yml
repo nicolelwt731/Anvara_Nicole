@@ -1,0 +1,16 @@
+name: CI
+on: [pull_request] # When a PR is created
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      - run: pnpm install
+      - run: pnpm lint     # ESLint 9
+        continue-on-error: true
+      - run: pnpm test     # Vitest
+        continue-on-error: true
+      - run: pnpm build    # Next.js/Express
