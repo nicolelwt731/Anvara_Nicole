@@ -50,3 +50,21 @@ export const unsubscribeNewsletter = (email: string) =>
     method: 'POST',
     body: JSON.stringify({ email }),
   });
+
+export type QuoteRequestPayload = {
+  email: string;
+  companyName: string;
+  adSlotId: string;
+  adSlotName: string;
+  phone?: string;
+  budget?: string;
+  goals?: string;
+  timeline?: string;
+  requirements?: string;
+};
+
+export const requestQuote = (payload: QuoteRequestPayload) =>
+  api<{ success: boolean; quoteId: string }>('/api/quotes/request', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
