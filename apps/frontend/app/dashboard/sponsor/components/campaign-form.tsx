@@ -6,6 +6,7 @@ import { createCampaign, updateCampaign } from '../actions';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackFormSubmit, trackManagementEvent } from '@/lib/analytics';
+import { showToast } from '@/app/components/toast';
 
 interface Campaign {
   id: string;
@@ -29,7 +30,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+      className="rounded-lg bg-[--color-primary] px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:bg-[--color-primary-hover] hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100"
     >
       {pending ? 'Saving...' : isEditing ? 'Update Campaign' : 'Create Campaign'}
     </button>
@@ -44,32 +45,30 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
     campaign ? campaign.startDate.split('T')[0] : ''
   );
 
-  const action = isEditing
-    ? updateCampaign.bind(null, campaign!.id)
-    : createCampaign;
+  const action = isEditing ? updateCampaign.bind(null, campaign!.id) : createCampaign;
 
   const [state, formAction] = useActionState(action, {});
 
   useEffect(() => {
     if (state.success) {
-      // Track form submission success
       trackFormSubmit('campaign_form', isEditing ? 'update' : 'create', true, {
         campaign_id: campaign?.id,
       });
-      
-      // Track management event
       trackManagementEvent(isEditing ? 'update' : 'create', 'campaign', campaign?.id);
-      
+      showToast(
+        isEditing ? 'Campaign updated successfully!' : 'Campaign created successfully!',
+        'success'
+      );
       onClose();
       setTimeout(() => {
         router.replace('/dashboard/sponsor');
       }, 100);
     } else if (state.error) {
-      // Track form submission failure
       trackFormSubmit('campaign_form', isEditing ? 'update' : 'create', false, {
         campaign_id: campaign?.id,
         error: state.error,
       });
+      showToast(state.error || 'Failed to save campaign', 'error');
     }
   }, [state.success, state.error, isEditing, campaign?.id, onClose, router]);
 
@@ -82,18 +81,26 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-[--color-card] border border-[--color-border] p-6 shadow-xl animate-slide-up">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold text-white">
             {isEditing ? 'Edit Campaign' : 'Create New Campaign'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="rounded-lg p-2 text-[--color-muted] transition-colors hover:bg-[--color-card-hover] hover:text-white"
             type="button"
+            aria-label="Close"
           >
-            ✕
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
@@ -105,7 +112,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
 
         <form ref={formRef} action={formAction} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-sm font-medium text-[--color-muted]">
               Campaign Name *
             </label>
             <input
@@ -113,7 +120,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
               id="name"
               name="name"
               defaultValue={campaign?.name}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               required
             />
             {state.fieldErrors?.name && (
@@ -122,7 +129,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="description" className="block text-sm font-medium text-[--color-muted]">
               Description
             </label>
             <textarea
@@ -130,12 +137,12 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
               name="description"
               rows={3}
               defaultValue={campaign?.description}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
             />
           </div>
 
           <div>
-            <label htmlFor="budget" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="budget" className="block text-sm font-medium text-[--color-muted]">
               Budget ($) *
             </label>
             <input
@@ -145,7 +152,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
               min="0"
               step="0.01"
               defaultValue={campaign?.budget}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               required
             />
             {state.fieldErrors?.budget && (
@@ -155,7 +162,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="startDate" className="block text-sm font-medium text-[--color-muted]">
                 Start Date *
               </label>
               <input
@@ -165,7 +172,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
                 value={startDate}
                 onChange={handleStartDateChange}
                 min={new Date().toISOString().split('T')[0]}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
                 style={{ colorScheme: 'light' }}
                 required
               />
@@ -175,7 +182,7 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
             </div>
 
             <div>
-              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="endDate" className="block text-sm font-medium text-[--color-muted]">
                 End Date *
               </label>
               <input
@@ -183,8 +190,12 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
                 id="endDate"
                 name="endDate"
                 defaultValue={campaign ? formatDateForInput(campaign.endDate) : ''}
-                min={startDate || campaign ? formatDateForInput(campaign?.startDate || '') : new Date().toISOString().split('T')[0]}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                min={
+                  startDate || campaign
+                    ? formatDateForInput(campaign?.startDate || '')
+                    : new Date().toISOString().split('T')[0]
+                }
+                className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
                 style={{ colorScheme: 'light' }}
                 required
               />
@@ -196,14 +207,14 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
 
           {isEditing && (
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="status" className="block text-sm font-medium text-[--color-muted]">
                 Status
               </label>
               <select
                 id="status"
                 name="status"
                 defaultValue={campaign?.status}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               >
                 <option value="DRAFT">Draft</option>
                 <option value="ACTIVE">Active</option>
@@ -213,11 +224,11 @@ export function CampaignForm({ campaign, onClose }: CampaignFormProps) {
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col-reverse justify-end gap-3 pt-4 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-[--color-border] px-6 py-2.5 font-medium text-white transition-all duration-200 hover:bg-[--color-card-hover] hover:scale-105 active:scale-95"
             >
               Cancel
             </button>

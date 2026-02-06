@@ -39,4 +39,3 @@ router.post('/unsubscribe', (req, res) => {
 });
 
 export default router;
-

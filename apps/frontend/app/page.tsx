@@ -3,46 +3,53 @@
 import Link from 'next/link';
 import { trackButtonClick } from '@/lib/analytics';
 
-// TODO: This should be a marketing landing page, not just a simple welcome screen
-// TODO: Add proper metadata for SEO (title, description, Open Graph)
-// TODO: Add hero section, features, testimonials, etc.
-// HINT: Check out the bonus challenge for marketing landing page!
-
 export default function Home() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <h1 className="mb-4 text-4xl font-bold">Welcome to Anvara</h1>
-      <p className="mb-8 max-w-md text-[--color-muted]">
-        The sponsorship marketplace connecting sponsors with publishers.
-      </p>
-
-      <div className="flex gap-4">
-        <Link
-          href="/login"
-          onClick={() => {
-            trackButtonClick('Get Started', 'home_page');
-          }}
-          className="rounded-lg bg-[--color-primary] px-6 py-3 text-white hover:bg-[--color-primary-hover]"
-        >
-          Get Started
-        </Link>
-      </div>
-
-      <div className="mt-16 grid gap-8 text-left sm:grid-cols-2">
-        <div className="rounded-lg border border-[--color-border] p-6">
-          <h2 className="mb-2 text-lg font-semibold text-[--color-primary]">For Sponsors</h2>
-          <p className="text-sm text-[--color-muted]">
-            Create campaigns, set budgets, and reach your target audience through premium
-            publishers.
+    <>
+      <section className="relative min-h-[70vh] overflow-hidden py-20 md:py-32">
+        <div className="absolute inset-0 -z-10 bg-[--color-background]" />
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-6 inline-block rounded-full border border-[--color-primary]/50 bg-[--color-card] px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-[--color-primary]">
+            The OS for Sponsorships
+          </div>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
+            Connect Brands with
+            <span className="block text-[--color-primary]"> Premium Publishers</span>
+          </h1>
+          <p className="mb-10 text-lg text-[--color-muted] md:text-xl">
+            The leading marketplace where sponsors discover high-impact ad slots and publishers
+            monetize their audience with transparency.
           </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/marketplace"
+              onClick={() => {
+                trackButtonClick('Browse Marketplace', 'home_page');
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[--color-primary] px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[--color-primary-hover] hover:scale-105 hover:shadow-xl"
+            >
+              Browse Marketplace
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => {
+                trackButtonClick('Manage Ad Slots', 'home_page');
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-[--color-border] bg-[--color-card] px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:bg-[--color-card-hover]"
+            >
+              Manage Ad Slots
+            </Link>
+          </div>
         </div>
-        <div className="rounded-lg border border-[--color-border] p-6">
-          <h2 className="mb-2 text-lg font-semibold text-[--color-secondary]">For Publishers</h2>
-          <p className="text-sm text-[--color-muted]">
-            List your ad slots, set your rates, and connect with sponsors looking for your audience.
-          </p>
-        </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

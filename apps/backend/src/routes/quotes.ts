@@ -3,27 +3,18 @@ import { Router, type IRouter } from 'express';
 const router: IRouter = Router();
 
 router.post('/request', (req, res) => {
-  const {
-    email,
-    companyName,
-    adSlotId,
-    adSlotName,
-    phone,
-    budget,
-    goals,
-    timeline,
-    requirements,
-  } = req.body as {
-    email?: string;
-    companyName?: string;
-    adSlotId?: string;
-    adSlotName?: string;
-    phone?: string;
-    budget?: string;
-    goals?: string;
-    timeline?: string;
-    requirements?: string;
-  };
+  const { email, companyName, adSlotId, adSlotName, phone, budget, goals, timeline, requirements } =
+    req.body as {
+      email?: string;
+      companyName?: string;
+      adSlotId?: string;
+      adSlotName?: string;
+      phone?: string;
+      budget?: string;
+      goals?: string;
+      timeline?: string;
+      requirements?: string;
+    };
 
   if (!email || typeof email !== 'string') {
     res.status(400).json({ success: false, message: 'Email is required' });
@@ -65,4 +56,3 @@ router.post('/request', (req, res) => {
 });
 
 export default router;
-

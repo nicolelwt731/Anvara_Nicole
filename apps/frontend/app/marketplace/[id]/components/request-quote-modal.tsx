@@ -79,7 +79,7 @@ export function RequestQuoteModal({ adSlotId, adSlotName, onClose }: Props) {
     } catch (error) {
       setStatus('error');
       setMessage(
-        error instanceof Error ? error.message : 'Something went wrong. Please try again.',
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.'
       );
     }
   };
@@ -91,11 +91,7 @@ export function RequestQuoteModal({ adSlotId, adSlotName, onClose }: Props) {
       <div className="w-full max-w-xl rounded-lg bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Request a Quote</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-[--color-muted]"
-          >
+          <button type="button" onClick={onClose} className="text-sm text-[--color-muted]">
             Close
           </button>
         </div>
@@ -227,14 +223,8 @@ export function RequestQuoteModal({ adSlotId, adSlotName, onClose }: Props) {
             />
           </div>
           {message && (
-            <p
-              className={`text-sm ${
-                status === 'success' ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {quoteId && status === 'success'
-                ? `${message} Reference ID: ${quoteId}.`
-                : message}
+            <p className={`text-sm ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+              {quoteId && status === 'success' ? `${message} Reference ID: ${quoteId}.` : message}
             </p>
           )}
           <div className="flex items-center justify-between gap-3 pt-2">
@@ -261,4 +251,3 @@ export function RequestQuoteModal({ adSlotId, adSlotName, onClose }: Props) {
     </div>
   );
 }
-

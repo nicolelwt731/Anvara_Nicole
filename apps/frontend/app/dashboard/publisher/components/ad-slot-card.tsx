@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { deleteAdSlot } from '../actions';
 import { AdSlotForm } from './ad-slot-form';
 import { trackManagementEvent, trackButtonClick } from '@/lib/analytics';
+import { getImageByCategory } from '@/lib/utils';
 
 interface AdSlotCardProps {
   adSlot: {
@@ -62,12 +63,24 @@ export function AdSlotCard({ adSlot }: AdSlotCardProps) {
 
   return (
     <>
-      <div className="rounded-lg border border-[--color-border] p-4">
+      <div className="group rounded-lg border border-[--color-border] bg-[--color-card] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[--color-primary]/30 hover:shadow-lg">
+        <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-md bg-gray-800">
+          <img
+            src={getImageByCategory(adSlot.type, adSlot.name)}
+            alt={adSlot.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute right-2 top-2">
+            <span
+              className={`rounded px-2 py-0.5 text-xs font-medium ${typeColors[adSlot.type] || 'bg-gray-100'}`}
+            >
+              {adSlot.type}
+            </span>
+          </div>
+        </div>
+
         <div className="mb-2 flex items-start justify-between">
-          <h3 className="font-semibold">{adSlot.name}</h3>
-          <span className={`rounded px-2 py-0.5 text-xs ${typeColors[adSlot.type] || 'bg-gray-100'}`}>
-            {adSlot.type}
-          </span>
+          <h3 className="font-semibold text-white">{adSlot.name}</h3>
         </div>
 
         {adSlot.description && (
@@ -81,11 +94,20 @@ export function AdSlotCard({ adSlot }: AdSlotCardProps) {
         )}
 
         <div className="mb-3 flex items-center justify-between">
-          <span
-            className={`text-sm ${adSlot.isAvailable ? 'text-green-600' : 'text-[--color-muted]'}`}
-          >
-            {adSlot.isAvailable ? 'Available' : 'Booked'}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                adSlot.isAvailable ? 'bg-green-500' : 'bg-red-500'
+              }`}
+            />
+            <span
+              className={`text-sm ${
+                adSlot.isAvailable ? 'text-green-400' : 'text-[--color-muted]'
+              }`}
+            >
+              {adSlot.isAvailable ? 'Available' : 'Booked'}
+            </span>
+          </div>
           <span className="font-semibold text-[--color-primary]">
             ${Number(adSlot.basePrice).toLocaleString()}/mo
           </span>
@@ -105,26 +127,21 @@ export function AdSlotCard({ adSlot }: AdSlotCardProps) {
               });
               setShowEditForm(true);
             }}
-            className="flex-1 rounded border border-blue-600 bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="flex-1 rounded-lg border border-[--color-border] bg-transparent px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-[--color-card-hover] hover:scale-105 active:scale-95"
           >
-            Edit
+            Edit Details
           </button>
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="flex-1 rounded border border-red-600 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition-all duration-200 hover:bg-red-500/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {isPending ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>
 
-      {showEditForm && (
-        <AdSlotForm
-          adSlot={adSlot}
-          onClose={() => setShowEditForm(false)}
-        />
-      )}
+      {showEditForm && <AdSlotForm adSlot={adSlot} onClose={() => setShowEditForm(false)} />}
     </>
   );
 }

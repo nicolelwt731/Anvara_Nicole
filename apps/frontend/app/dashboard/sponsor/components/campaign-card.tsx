@@ -62,7 +62,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
 
   return (
     <>
-      <div className="rounded-lg border border-[--color-border] p-4">
+      <div className="group rounded-lg border border-[--color-border] bg-[--color-card] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[--color-primary]/30 hover:shadow-lg">
         <div className="mb-2 flex items-start justify-between">
           <h3 className="font-semibold">{campaign.name}</h3>
           <span
@@ -80,7 +80,8 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           <div className="flex justify-between text-sm">
             <span className="text-[--color-muted]">Budget</span>
             <span>
-              ${Number(campaign.spent).toLocaleString()} / ${Number(campaign.budget).toLocaleString()}
+              ${Number(campaign.spent).toLocaleString()} / $
+              {Number(campaign.budget).toLocaleString()}
             </span>
           </div>
           <div className="mt-1 h-1.5 rounded-full bg-gray-200">
@@ -110,26 +111,21 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               });
               setShowEditForm(true);
             }}
-            className="flex-1 rounded border border-blue-600 bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="flex-1 rounded-lg border border-[--color-primary] bg-[--color-primary] px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-[--color-primary-hover] hover:scale-105 active:scale-95"
           >
             Edit
           </button>
           <button
             onClick={handleDelete}
             disabled={isPending}
-            className="flex-1 rounded border border-red-600 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-lg border border-red-600 px-3 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {isPending ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>
 
-      {showEditForm && (
-        <CampaignForm
-          campaign={campaign}
-          onClose={() => setShowEditForm(false)}
-        />
-      )}
+      {showEditForm && <CampaignForm campaign={campaign} onClose={() => setShowEditForm(false)} />}
     </>
   );
 }

@@ -15,9 +15,7 @@ async function getAuthHeaders() {
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 
-  const cookieHeader = allCookies
-    .map((cookie) => `${cookie.name}=${cookie.value}`)
-    .join('; ');
+  const cookieHeader = allCookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
 
   return {
     'Content-Type': 'application/json',
@@ -25,10 +23,7 @@ async function getAuthHeaders() {
   };
 }
 
-export async function createCampaign(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
+export async function createCampaign(prevState: FormState, formData: FormData): Promise<FormState> {
   try {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;

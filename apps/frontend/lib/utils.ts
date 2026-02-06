@@ -88,3 +88,18 @@ export function formatRelativeTime(date: string | Date): string {
   if (days < 7) return `${days} days ago`;
   return then.toLocaleDateString();
 }
+
+export function getImageByCategory(type: string, title: string) {
+  const t = type.toLowerCase();
+  const ti = title.toLowerCase();
+  if (t.includes('video') || ti.includes('video')) {
+    // Camera/Video production
+    return 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80';
+  }
+  if (ti.includes('integration') || t.includes('integration') || t.includes('native')) {
+    // Business meeting/Handshake
+    return 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80';
+  }
+  // Coding/Technology
+  return 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80';
+}

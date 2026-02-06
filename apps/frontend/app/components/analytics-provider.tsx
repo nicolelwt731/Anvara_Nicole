@@ -9,8 +9,7 @@ export function AnalyticsProvider() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const fullPath =
-      pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+    const fullPath = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
     trackNavigation(fullPath, document.referrer);
   }, [pathname, searchParams]);
 
@@ -18,8 +17,7 @@ export function AnalyticsProvider() {
     'micro',
     'page_view',
     {
-      page_path:
-        pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ''),
+      page_path: pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ''),
       page_location: typeof window !== 'undefined' ? window.location.href : '',
     },
     [pathname, searchParams]

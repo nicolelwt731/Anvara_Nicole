@@ -134,18 +134,15 @@ export function AdSlotDetail({ id }: Props) {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
-      const response = await fetch(
-        `${apiUrl}/api/ad-slots/${adSlot.id}/book`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            sponsorId: roleInfo.sponsorId,
-            message: message || undefined,
-          }),
-        }
-      );
+      const response = await fetch(`${apiUrl}/api/ad-slots/${adSlot.id}/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          sponsorId: roleInfo.sponsorId,
+          message: message || undefined,
+        }),
+      });
 
       if (!response.ok) {
         const data = await response.json();
@@ -187,14 +184,11 @@ export function AdSlotDetail({ id }: Props) {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
-      const response = await fetch(
-        `${apiUrl}/api/ad-slots/${adSlot.id}/unbook`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-        }
-      );
+      const response = await fetch(`${apiUrl}/api/ad-slots/${adSlot.id}/unbook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to reset booking' }));
@@ -208,7 +202,7 @@ export function AdSlotDetail({ id }: Props) {
       trackMarketplaceEvent('unbook_placement', adSlot.id, adSlot.type, {
         listing_name: adSlot.name,
       });
-      
+
       router.refresh();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to reset booking';
@@ -221,7 +215,9 @@ export function AdSlotDetail({ id }: Props) {
   const handleDelete = async () => {
     if (!adSlot) return;
 
-    if (!confirm(`Are you sure you want to delete "${adSlot.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete "${adSlot.name}"? This action cannot be undone.`)
+    ) {
       return;
     }
 

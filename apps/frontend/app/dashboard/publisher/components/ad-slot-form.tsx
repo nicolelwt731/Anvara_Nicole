@@ -6,6 +6,7 @@ import { createAdSlot, updateAdSlot } from '../actions';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackFormSubmit, trackManagementEvent } from '@/lib/analytics';
+import { showToast } from '@/app/components/toast';
 
 interface AdSlot {
   id: string;
@@ -30,7 +31,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+      className="rounded-lg bg-[--color-primary] px-6 py-2.5 font-semibold text-white transition-all duration-200 hover:bg-[--color-primary-hover] hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100"
     >
       {pending ? 'Saving...' : isEditing ? 'Update Ad Slot' : 'Create Ad Slot'}
     </button>
@@ -42,47 +43,53 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
-  const action = isEditing
-    ? updateAdSlot.bind(null, adSlot!.id)
-    : createAdSlot;
+  const action = isEditing ? updateAdSlot.bind(null, adSlot!.id) : createAdSlot;
 
   const [state, formAction] = useActionState(action, {});
 
   useEffect(() => {
     if (state.success) {
-      // Track form submission success
       trackFormSubmit('ad_slot_form', isEditing ? 'update' : 'create', true, {
         ad_slot_id: adSlot?.id,
         ad_slot_type: adSlot?.type,
       });
-      
-      // Track management event
       trackManagementEvent(isEditing ? 'update' : 'create', 'ad_slot', adSlot?.id);
-      
+      showToast(
+        isEditing ? 'Ad slot updated successfully!' : 'Ad slot created successfully!',
+        'success'
+      );
       onClose();
       router.replace('/dashboard/publisher');
     } else if (state.error) {
-      // Track form submission failure
       trackFormSubmit('ad_slot_form', isEditing ? 'update' : 'create', false, {
         ad_slot_id: adSlot?.id,
         error: state.error,
       });
+      showToast(state.error || 'Failed to save ad slot', 'error');
     }
   }, [state.success, state.error, isEditing, adSlot?.id, adSlot?.type, onClose, router]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-[--color-card] border border-[--color-border] p-6 shadow-xl animate-slide-up">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold text-white">
             {isEditing ? 'Edit Ad Slot' : 'Create New Ad Slot'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="rounded-lg p-2 text-[--color-muted] transition-colors hover:bg-[--color-card-hover] hover:text-white"
             type="button"
+            aria-label="Close"
           >
-            ✕
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
@@ -94,7 +101,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
 
         <form ref={formRef} action={formAction} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-sm font-medium text-[--color-muted]">
               Ad Slot Name *
             </label>
             <input
@@ -102,7 +109,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
               id="name"
               name="name"
               defaultValue={adSlot?.name}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               required
             />
             {state.fieldErrors?.name && (
@@ -111,7 +118,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="description" className="block text-sm font-medium text-[--color-muted]">
               Description
             </label>
             <textarea
@@ -119,19 +126,19 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
               name="description"
               rows={3}
               defaultValue={adSlot?.description}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
             />
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="type" className="block text-sm font-medium text-[--color-muted]">
               Ad Slot Type *
             </label>
             <select
               id="type"
               name="type"
               defaultValue={adSlot?.type}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               required
             >
               <option value="">Select a type</option>
@@ -147,7 +154,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
           </div>
 
           <div>
-            <label htmlFor="basePrice" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="basePrice" className="block text-sm font-medium text-[--color-muted]">
               Base Price ($) *
             </label>
             <input
@@ -157,7 +164,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
               min="0"
               step="0.01"
               defaultValue={adSlot?.basePrice}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               required
             />
             {state.fieldErrors?.basePrice && (
@@ -167,7 +174,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="width" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="width" className="block text-sm font-medium text-[--color-muted]">
                 Width (px)
               </label>
               <input
@@ -176,12 +183,12 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
                 name="width"
                 min="0"
                 defaultValue={adSlot?.width}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               />
             </div>
 
             <div>
-              <label htmlFor="height" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="height" className="block text-sm font-medium text-[--color-muted]">
                 Height (px)
               </label>
               <input
@@ -190,7 +197,7 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
                 name="height"
                 min="0"
                 defaultValue={adSlot?.height}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm transition-all duration-200 focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
               />
             </div>
           </div>
@@ -203,19 +210,19 @@ export function AdSlotForm({ adSlot, onClose }: AdSlotFormProps) {
                 name="isAvailable"
                 value="true"
                 defaultChecked={adSlot?.isAvailable}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-5 w-5 rounded border-gray-300 text-[--color-primary] focus:ring-[--color-primary]"
               />
-              <label htmlFor="isAvailable" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="isAvailable" className="ml-2 block text-sm text-[--color-muted]">
                 Available for booking
               </label>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col-reverse justify-end gap-3 pt-4 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-6 py-2.5 font-medium text-[--color-muted] transition-all duration-200 hover:bg-gray-50 hover:scale-105 active:scale-95"
             >
               Cancel
             </button>

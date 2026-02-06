@@ -24,30 +24,44 @@ export function AdSlotList({ adSlots }: AdSlotListProps) {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-6 flex justify-end">
         <button
           onClick={() => setShowCreateForm(true)}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="rounded-lg bg-[--color-primary] px-6 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:bg-[--color-primary-hover] hover:scale-105 hover:shadow-lg"
         >
-          + Create Ad Slot
+          + Create New Slot
         </button>
       </div>
 
       {adSlots.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[--color-border] p-8 text-center text-[--color-muted]">
-          No ad slots yet. Create your first ad slot to start earning.
+        <div className="animate-fade-in rounded-xl border-2 border-dashed border-[--color-border] bg-[--color-card] p-12 text-center">
+          <div className="mb-4 text-6xl">📰</div>
+          <h3 className="mb-2 text-xl font-semibold text-white">No ad slots yet</h3>
+          <p className="mb-6 text-[--color-muted]">
+            Create your first ad slot to start monetizing your audience
+          </p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="rounded-lg bg-[--color-primary] px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-[--color-primary-hover] hover:scale-105"
+          >
+            Create Your First Ad Slot
+          </button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {adSlots.map((slot) => (
-            <AdSlotCard key={slot.id} adSlot={slot} />
+          {adSlots.map((slot, index) => (
+            <div
+              key={slot.id}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <AdSlotCard adSlot={slot} />
+            </div>
           ))}
         </div>
       )}
 
-      {showCreateForm && (
-        <AdSlotForm onClose={() => setShowCreateForm(false)} />
-      )}
+      {showCreateForm && <AdSlotForm onClose={() => setShowCreateForm(false)} />}
     </>
   );
 }

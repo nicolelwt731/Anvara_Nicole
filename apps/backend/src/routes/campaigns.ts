@@ -55,7 +55,7 @@ router.get('/:id', requireAuth, async (req: AuthRequest, res: Response) => {
     }
 
     if (req.user?.role === 'sponsor' && campaign.sponsorId !== req.user.sponsorId) {
-      res.status(403).json({ error: 'Forbidden - Cannot access another sponsor\'s campaign' });
+      res.status(403).json({ error: "Forbidden - Cannot access another sponsor's campaign" });
       return;
     }
 
@@ -115,87 +115,97 @@ router.post('/', requireAuth, requireRole(['sponsor']), async (req: AuthRequest,
   }
 });
 
-router.put('/:id', requireAuth, requireRole(['sponsor']), async (req: AuthRequest, res: Response) => {
-  try {
-    const id = getParam(req.params.id);
-    const {
-      name,
-      description,
-      budget,
-      cpmRate,
-      cpcRate,
-      startDate,
-      endDate,
-      targetCategories,
-      targetRegions,
-      status,
-    } = req.body;
+router.put(
+  '/:id',
+  requireAuth,
+  requireRole(['sponsor']),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const id = getParam(req.params.id);
+      const {
+        name,
+        description,
+        budget,
+        cpmRate,
+        cpcRate,
+        startDate,
+        endDate,
+        targetCategories,
+        targetRegions,
+        status,
+      } = req.body;
 
-    const existingCampaign = await prisma.campaign.findUnique({
-      where: { id },
-      select: { sponsorId: true },
-    });
+      const existingCampaign = await prisma.campaign.findUnique({
+        where: { id },
+        select: { sponsorId: true },
+      });
 
-    if (!existingCampaign) {
-      res.status(404).json({ error: 'Campaign not found' });
-      return;
+      if (!existingCampaign) {
+        res.status(404).json({ error: 'Campaign not found' });
+        return;
+      }
+
+      if (existingCampaign.sponsorId !== req.user?.sponsorId) {
+        res.status(403).json({ error: "Forbidden - Cannot update another sponsor's campaign" });
+        return;
+      }
+
+      const campaign = await prisma.campaign.update({
+        where: { id },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(description !== undefined && { description }),
+          ...(budget !== undefined && { budget }),
+          ...(cpmRate !== undefined && { cpmRate }),
+          ...(cpcRate !== undefined && { cpcRate }),
+          ...(startDate && { startDate: new Date(startDate) }),
+          ...(endDate && { endDate: new Date(endDate) }),
+          ...(targetCategories !== undefined && { targetCategories }),
+          ...(targetRegions !== undefined && { targetRegions }),
+          ...(status !== undefined && { status }),
+        },
+        include: {
+          sponsor: { select: { id: true, name: true } },
+        },
+      });
+
+      res.json(campaign);
+    } catch {
+      res.status(500).json({ error: 'Failed to update campaign' });
     }
-
-    if (existingCampaign.sponsorId !== req.user?.sponsorId) {
-      res.status(403).json({ error: 'Forbidden - Cannot update another sponsor\'s campaign' });
-      return;
-    }
-
-    const campaign = await prisma.campaign.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(budget !== undefined && { budget }),
-        ...(cpmRate !== undefined && { cpmRate }),
-        ...(cpcRate !== undefined && { cpcRate }),
-        ...(startDate && { startDate: new Date(startDate) }),
-        ...(endDate && { endDate: new Date(endDate) }),
-        ...(targetCategories !== undefined && { targetCategories }),
-        ...(targetRegions !== undefined && { targetRegions }),
-        ...(status !== undefined && { status }),
-      },
-      include: {
-        sponsor: { select: { id: true, name: true } },
-      },
-    });
-
-    res.json(campaign);
-  } catch {
-    res.status(500).json({ error: 'Failed to update campaign' });
   }
-});
+);
 
-router.delete('/:id', requireAuth, requireRole(['sponsor']), async (req: AuthRequest, res: Response) => {
-  try {
-    const id = getParam(req.params.id);
+router.delete(
+  '/:id',
+  requireAuth,
+  requireRole(['sponsor']),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const id = getParam(req.params.id);
 
-    const existingCampaign = await prisma.campaign.findUnique({
-      where: { id },
-      select: { sponsorId: true },
-    });
+      const existingCampaign = await prisma.campaign.findUnique({
+        where: { id },
+        select: { sponsorId: true },
+      });
 
-    if (!existingCampaign) {
-      res.status(404).json({ error: 'Campaign not found' });
-      return;
+      if (!existingCampaign) {
+        res.status(404).json({ error: 'Campaign not found' });
+        return;
+      }
+
+      if (existingCampaign.sponsorId !== req.user?.sponsorId) {
+        res.status(403).json({ error: "Forbidden - Cannot delete another sponsor's campaign" });
+        return;
+      }
+
+      await prisma.campaign.delete({ where: { id } });
+
+      res.json({ success: true, message: 'Campaign deleted successfully' });
+    } catch {
+      res.status(500).json({ error: 'Failed to delete campaign' });
     }
-
-    if (existingCampaign.sponsorId !== req.user?.sponsorId) {
-      res.status(403).json({ error: 'Forbidden - Cannot delete another sponsor\'s campaign' });
-      return;
-    }
-
-    await prisma.campaign.delete({ where: { id } });
-
-    res.json({ success: true, message: 'Campaign deleted successfully' });
-  } catch {
-    res.status(500).json({ error: 'Failed to delete campaign' });
   }
-});
+);
 
 export default router;

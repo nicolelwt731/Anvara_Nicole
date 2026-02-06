@@ -44,7 +44,7 @@ export function NewsletterSignup() {
     } catch (error) {
       setStatus('error');
       setMessage(
-        error instanceof Error ? error.message : 'Something went wrong. Please try again.',
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.'
       );
     }
   };
@@ -53,71 +53,73 @@ export function NewsletterSignup() {
   const isSubscribe = mode === 'subscribe';
 
   return (
-    <section className="rounded-lg border border-[--color-border] bg-[--color-background] p-4 shadow-sm">
-      <h2 className="mb-2 text-lg font-semibold">Stay in the loop</h2>
-      <p className="mb-3 text-sm text-[--color-muted]">
-        Get marketplace updates, new placement opportunities, and best practices in your inbox.
-      </p>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label
-            htmlFor="newsletter-email"
-            className="mb-1 block text-sm font-medium text-[--color-foreground]"
-          >
-            Email address
-          </label>
-          <input
-            id="newsletter-email"
-            type="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              if (status !== 'idle') {
-                setStatus('idle');
-                setMessage('');
-              }
-            }}
-            placeholder="you@example.com"
-            className="w-full rounded-md border border-[--color-border] bg-white px-3 py-2 text-[--color-foreground] shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-1 focus:ring-[--color-primary]"
+    <section className="rounded-lg border border-[--color-border] bg-[--color-card] p-6 shadow-sm md:flex md:items-center md:justify-between md:gap-8">
+      <div className="md:w-1/2">
+        <h2 className="mb-2 text-xl font-semibold text-white">Stay in the loop</h2>
+        <p className="mb-4 text-sm text-[--color-muted] md:mb-0">
+          Get marketplace updates, new placement opportunities, and best practices in your inbox.
+        </p>
+      </div>
+      <div className="md:w-1/2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="w-full">
+            <label htmlFor="newsletter-email" className="sr-only">
+              Email address
+            </label>
+            <input
+              id="newsletter-email"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                if (status !== 'idle') {
+                  setStatus('idle');
+                  setMessage('');
+                }
+              }}
+              placeholder="you@example.com"
+              className="w-full rounded-lg border border-[--color-border] bg-[--color-background] px-4 py-2.5 text-white placeholder-[--color-muted] shadow-sm focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
+              disabled={disabled}
+              required
+            />
+            {message && (
+              <p
+                className={`mt-1 text-xs ${
+                  status === 'success' ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {message}
+              </p>
+            )}
+          </div>
+          <button
+            type="submit"
             disabled={disabled}
-            required
-          />
-        </div>
-        {message && (
-          <p
-            className={`text-sm ${
-              status === 'success' ? 'text-green-600' : 'text-red-600'
-            }`}
+            className="shrink-0 rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-black transition-all duration-200 hover:bg-gray-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {message}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={disabled}
-          className="w-full rounded-md bg-[--color-primary] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {status === 'loading'
-            ? isSubscribe
-              ? 'Subscribing...'
-              : 'Unsubscribing...'
-            : isSubscribe
-              ? 'Subscribe to newsletter'
-              : 'Unsubscribe from newsletter'}
-        </button>
-        <button
-          type="button"
-          className="w-full text-center text-xs text-[--color-muted] underline"
-          onClick={() => {
-            setMode(isSubscribe ? 'unsubscribe' : 'subscribe');
-            setStatus('idle');
-            setMessage('');
-          }}
-        >
-          {isSubscribe ? 'Prefer not to receive emails? Unsubscribe' : 'Back to subscribe'}
-        </button>
-      </form>
+            {status === 'loading'
+              ? isSubscribe
+                ? '...'
+                : '...'
+              : isSubscribe
+                ? 'Subscribe'
+                : 'Unsubscribe'}
+          </button>
+        </form>
+        <div className="mt-2 text-right">
+          <button
+            type="button"
+            className="text-xs text-[--color-muted] underline hover:text-white"
+            onClick={() => {
+              setMode(isSubscribe ? 'unsubscribe' : 'subscribe');
+              setStatus('idle');
+              setMessage('');
+            }}
+          >
+            {isSubscribe ? 'Prefer not to receive emails? Unsubscribe' : 'Back to subscribe'}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
-
