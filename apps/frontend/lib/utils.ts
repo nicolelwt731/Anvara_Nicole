@@ -59,7 +59,6 @@ export function deepClone<T>(obj: T): T {
 // Logger that only logs in development
 export const logger = {
   log: (...args: unknown[]) => {
-    // eslint-disable-next-line no-undef
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
       console.log('[App]', ...args);
